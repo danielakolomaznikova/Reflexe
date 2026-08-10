@@ -18,6 +18,10 @@ android-app/
 └── README.md               # Tento soubor
 ```
 
+## Bonus: Eisenhowerova matice
+
+Součástí je i jednoduchá aplikace **[matice.html](matice.html)** — zadáš úkol, označíš jestli je důležitý a/nebo urgentní, a matice ho zařadí do správného kvadrantu (Udělej hned / Naplánuj / Deleguj / Vyškrtni). Úkoly se ukládají lokálně v prohlížeči. Po nasazení na GitHub Pages běží na `https://tvuj-username.github.io/reflexe/matice.html`.
+
 ## Auto-ukládání do Google Sheetu (doporučeno)
 
 Po nastavení se každá reflexe **automaticky zapíše** do Google Sheetu bez ručního kopírování JSON do chatu. Návod: viz [NAVOD-GOOGLE-SHEET.md](NAVOD-GOOGLE-SHEET.md).
