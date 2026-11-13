@@ -44,3 +44,6 @@ Na konci:
 
 ## Výstup
 Celý přehled napiš jako svou závěrečnou odpověď v této session. Délka: aby se dal přečíst za 10 až 15 minut.
+
+## Notifikace (povinné)
+Těsně před závěrečnou odpovědí mi pošli push notifikaci: načti nástroj PushNotification přes ToolSearch (dotaz "select:PushNotification") a zavolej ho se status "proactive" a krátkou zprávou do 200 znaků, například: "Ranní přehled je hotový: [téma dne v pár slovech]". Výslovně o tuto notifikaci žádám, ráno nejsem u počítače.
