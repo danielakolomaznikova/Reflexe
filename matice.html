@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F3A5F">
+<title>Eisenhowerova matice</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root {
+    --navy: #1F3A5F;
+    --gold: #C9A961;
+    --light-gold: #F5EFE0;
+    --bg: #FAF9F6;
+    --card: #FFFFFF;
+    --text: #2C2C2C;
+    --muted: #6B6B6B;
+    --border: #E5E2DA;
+    --red: #DC3545;
+    --amber: #E8A317;
+    --green: #28A745;
+    --gray: #8A8A8A;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 16px 16px 60px; }
+  header {
+    text-align: center;
+    padding: 16px 0 20px;
+    border-bottom: 2px solid var(--gold);
+    margin-bottom: 20px;
+  }
+  header h1 { margin: 0 0 4px; color: var(--navy); font-size: 24px; letter-spacing: 0.5px; }
+  header .subtitle { color: var(--gold); font-style: italic; font-size: 15px; }
+
+  /* ---- Formulář pro přidání úkolu ---- */
+  .add-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .add-row { display: flex; gap: 10px; }
+  input[type=text] {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font: inherit; font-size: 15px;
+    background: #FCFBF7;
+  }
+  input[type=text]:focus { outline: none; border-color: var(--gold); background: #fff; }
+  .toggles { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px;
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--muted);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; user-select: none;
+    transition: all .15s;
+  }
+  .chip .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background .15s; }
+  .chip.on { border-color: var(--navy); color: var(--navy); background: var(--light-gold); }
+  .chip.on .dot { background: var(--gold); }
+  .add-btn {
+    background: var(--navy); color: #fff; border: none;
+    padding: 12px 24px; font-size: 15px; font-weight: 700;
+    border-radius: 8px; cursor: pointer;
+  }
+  .add-btn:active { background: #142740; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 10px; font-style: italic; }
+
+  /* ---- Matice ---- */
+  .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .matrix { grid-template-columns: 1fr; } }
+  .quadrant {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--q-color);
+    border-radius: 12px;
+    padding: 14px 16px;
+    min-height: 120px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .quadrant h2 {
+    margin: 0; font-size: 16px; color: var(--q-color);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .quadrant .q-sub { color: var(--muted); font-size: 12px; font-style: italic; margin: 2px 0 10px; }
+  .count {
+    background: var(--q-color); color: #fff;
+    font-size: 12px; font-weight: 700;
+    min-width: 22px; height: 22px; border-radius: 11px;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0 7px;
+  }
+  #q1 { --q-color: var(--red); }
+  #q2 { --q-color: var(--green); }
+  #q3 { --q-color: var(--amber); }
+  #q4 { --q-color: var(--gray); }
+
+  ul.tasks { list-style: none; margin: 0; padding: 0; }
+  li.task {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 4px;
+    border-bottom: 1px dashed var(--border);
+    font-size: 15px;
+  }
+  li.task:last-child { border-bottom: none; }
+  li.task input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--q-color); flex-shrink: 0; }
+  li.task .txt { flex: 1; word-break: break-word; }
+  li.task.done .txt { text-decoration: line-through; color: var(--muted); }
+  .mini {
+    border: 1px solid var(--border); background: #fff;
+    color: var(--muted); border-radius: 6px;
+    width: 30px; height: 30px; font-size: 13px; font-weight: 700;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .mini.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .mini.del { color: var(--red); font-size: 16px; }
+  .empty { color: var(--muted); font-size: 13px; font-style: italic; padding: 6px 0; }
+
+  .footer-actions { text-align: center; margin-top: 24px; }
+  .clear-done {
+    background: #fff; color: var(--navy); border: 2px solid var(--navy);
+    padding: 10px 22px; font-size: 14px; font-weight: 700;
+    border-radius: 8px; cursor: pointer;
+  }
+  .legend { color: var(--muted); font-size: 12px; text-align: center; margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Eisenhowerova matice</h1>
+    <div class="subtitle">Zadej úkol – matice ho zařadí za tebe</div>
+  </header>
+
+  <div class="add-card">
+    <div class="add-row">
+      <input type="text" id="taskInput" placeholder="Co je potřeba udělat?" maxlength="200">
+      <button class="add-btn" id="addBtn">Přidat</button>
+    </div>
+    <div class="toggles">
+      <div class="chip" id="chipImportant"><span class="dot"></span>Důležité</div>
+      <div class="chip" id="chipUrgent"><span class="dot"></span>Urgentní</div>
+    </div>
+    <div class="hint">Označ, jestli je úkol důležitý a/nebo urgentní, a přidej ho. U hotového úkolu můžeš tlačítky D/U zařazení kdykoli změnit.</div>
+  </div>
+
+  <div class="matrix">
+    <section class="quadrant" id="q1">
+      <h2>Udělej hned <span class="count" id="count-q1">0</span></h2>
+      <div class="q-sub">důležité + urgentní</div>
+      <ul class="tasks" id="list-q1"></ul>
+    </section>
+    <section class="quadrant" id="q2">
+      <h2>Naplánuj <span class="count" id="count-q2">0</span></h2>
+      <div class="q-sub">důležité, ale ne urgentní</div>
+      <ul class="tasks" id="list-q2"></ul>
+    </section>
+    <section class="quadrant" id="q3">
+      <h2>Deleguj <span class="count" id="count-q3">0</span></h2>
+      <div class="q-sub">urgentní, ale ne důležité</div>
+      <ul class="tasks" id="list-q3"></ul>
+    </section>
+    <section class="quadrant" id="q4">
+      <h2>Vyškrtni <span class="count" id="count-q4">0</span></h2>
+      <div class="q-sub">ani důležité, ani urgentní</div>
+      <ul class="tasks" id="list-q4"></ul>
+    </section>
+  </div>
+
+  <div class="footer-actions">
+    <button class="clear-done" id="clearDone">Smazat hotové úkoly</button>
+  </div>
+  <div class="legend">Úkoly se ukládají lokálně v tomto prohlížeči.</div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'eisenhower-tasks';
+  let tasks = load();
+
+  const input = document.getElementById('taskInput');
+  const addBtn = document.getElementById('addBtn');
+  const chipImportant = document.getElementById('chipImportant');
+  const chipUrgent = document.getElementById('chipUrgent');
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+
+  function quadrantOf(t) {
+    if (t.important && t.urgent) return 'q1';
+    if (t.important) return 'q2';
+    if (t.urgent) return 'q3';
+    return 'q4';
+  }
+
+  function addTask() {
+    const text = input.value.trim();
+    if (!text) { input.focus(); return; }
+    tasks.push({
+      id: String(tasks.length ? Math.max(...tasks.map(t => Number(t.id))) + 1 : 1),
+      text,
+      important: chipImportant.classList.contains('on'),
+      urgent: chipUrgent.classList.contains('on'),
+      done: false
+    });
+    input.value = '';
+    input.focus();
+    save();
+    render();
+  }
+
+  function render() {
+    const lists = { q1: [], q2: [], q3: [], q4: [] };
+    tasks.forEach(t => lists[quadrantOf(t)].push(t));
+
+    for (const q of ['q1', 'q2', 'q3', 'q4']) {
+      const ul = document.getElementById('list-' + q);
+      ul.innerHTML = '';
+      document.getElementById('count-' + q).textContent = lists[q].filter(t => !t.done).length;
+
+      if (!lists[q].length) {
+        const li = document.createElement('li');
+        li.className = 'empty';
+        li.textContent = 'Žádné úkoly';
+        ul.appendChild(li);
+        continue;
+      }
+
+      for (const t of lists[q]) {
+        const li = document.createElement('li');
+        li.className = 'task' + (t.done ? ' done' : '');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = t.done;
+        cb.addEventListener('change', () => { t.done = cb.checked; save(); render(); });
+
+        const span = document.createElement('span');
+        span.className = 'txt';
+        span.textContent = t.text;
+
+        const btnI = document.createElement('button');
+        btnI.className = 'mini' + (t.important ? ' on' : '');
+        btnI.textContent = 'D';
+        btnI.title = 'Důležité – přepnout';
+        btnI.addEventListener('click', () => { t.important = !t.important; save(); render(); });
+
+        const btnU = document.createElement('button');
+        btnU.className = 'mini' + (t.urgent ? ' on' : '');
+        btnU.textContent = 'U';
+        btnU.title = 'Urgentní – přepnout';
+        btnU.addEventListener('click', () => { t.urgent = !t.urgent; save(); render(); });
+
+        const btnDel = document.createElement('button');
+        btnDel.className = 'mini del';
+        btnDel.textContent = '×';
+        btnDel.title = 'Smazat úkol';
+        btnDel.addEventListener('click', () => { tasks = tasks.filter(x => x.id !== t.id); save(); render(); });
+
+        li.append(cb, span, btnI, btnU, btnDel);
+        ul.appendChild(li);
+      }
+    }
+  }
+
+  addBtn.addEventListener('click', addTask);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+  chipImportant.addEventListener('click', () => chipImportant.classList.toggle('on'));
+  chipUrgent.addEventListener('click', () => chipUrgent.classList.toggle('on'));
+
+  document.getElementById('clearDone').addEventListener('click', () => {
+    tasks = tasks.filter(t => !t.done);
+    save();
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
